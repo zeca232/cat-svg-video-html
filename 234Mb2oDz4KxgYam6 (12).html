@@ -1,0 +1,1567 @@
+<html><head><base href="https://websim.ai/tools/frame-animation-creator">
+<title>WebSim AI Frame Animation Creator - Gato Siamês no Jardim Exuberante Detalhado</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #0a0a0a;
+    color: #e0e0e0;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #1c1c1c;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  }
+  h1 {
+    color: #f0f0f0;
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+  }
+  #videoPlayer {
+    width: 600px;
+    height: 400px;
+    border: 2px solid #3a3a3a;
+    margin: 20px auto;
+    overflow: hidden;
+    position: relative;
+    background-color: #000000;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+  }
+  #controls {
+    margin-top: 25px;
+    text-align: center;
+  }
+  .control-btn {
+    background-color: #3498db;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 8px;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+  .control-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .control-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  #timeDisplay {
+    text-align: center;
+    font-size: 20px;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #f0f0f0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+  #loadingMessage {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+    color: #e74c3c;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  }
+  #frameDescription {
+    margin-top: 25px;
+    padding: 15px;
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #3a3a3a;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+  }
+  #fpsInfo, #fileSizeInfo {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #a0a0a0;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>WebSim AI Frame Animation Creator - Gato Siamês no Jardim Exuberante Detalhado</h1>
+  
+  <canvas id="videoPlayer" width="600" height="400"></canvas>
+  
+  <div id="timeDisplay">Tempo: 0.00s / 20.00s</div>
+  
+  <div id="controls">
+    <button class="control-btn" id="playBtn">Play</button>
+    <button class="control-btn" id="pauseBtn">Pause</button>
+    <button class="control-btn" id="stopBtn">Stop</button>
+    <button class="control-btn" id="exportBtn">Exportar para WebM</button>
+  </div>
+  
+  <div id="frameDescription"></div>
+  
+  <div id="loadingMessage">Gerando frames ultra detalhados do gato siamês no jardim exuberante... Por favor, aguarde.</div>
+  
+  <div id="fpsInfo"></div>
+  <div id="fileSizeInfo"></div>
+</div>
+
+<script>
+const fpsTarget = 60;
+const duration = 20; // seconds
+const totalFrames = fpsTarget * duration;
+const canvas = document.getElementById('videoPlayer');
+const ctx = canvas.getContext('2d');
+const timeDisplay = document.getElementById('timeDisplay');
+const loadingMessage = document.getElementById('loadingMessage');
+const frameDescription = document.getElementById('frameDescription');
+
+let currentFrame = 0;
+let isPlaying = false;
+let animationId;
+let startTime;
+
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const exportBtn = document.getElementById('exportBtn');
+
+// Otimização: Pré-calcula valores comuns
+const TWO_PI = Math.PI * 2;
+const HALF_PI = Math.PI / 2;
+const CANVAS_WIDTH = canvas.width;
+const CANVAS_HEIGHT = canvas.height;
+
+function getFrameDescription(index) {
+  const frameTime = (index / fpsTarget).toFixed(2);
+  const normalizedTime = index / totalFrames;
+  
+  return {
+    frameTime,
+    skyColor: {
+      top: [135, 206, 235],
+      bottom: [173, 216, 230]
+    },
+    clouds: [
+      {
+        type: 'cirrus',
+        position: {
+          x: (CANVAS_WIDTH * 0.2 + normalizedTime * 50) % CANVAS_WIDTH,
+          y: CANVAS_HEIGHT * 0.1
+        },
+        size: { width: 200, height: 30 },
+        color: [255, 255, 255, 0.7]
+      },
+      {
+        type: 'cumulus',
+        position: {
+          x: (CANVAS_WIDTH * 0.6 + normalizedTime * 20) % CANVAS_WIDTH,
+          y: CANVAS_HEIGHT * 0.2
+        },
+        size: { width: 100, height: 60 },
+        color: [255, 255, 255, 1]
+      },
+      {
+        type: 'altostratus',
+        position: {
+          x: (CANVAS_WIDTH * 0.4 + normalizedTime * 30) % CANVAS_WIDTH,
+          y: CANVAS_HEIGHT * 0.15
+        },
+        size: { width: 150, height: 40 },
+        color: [240, 240, 240, 0.8]
+      }
+    ],
+    sunPosition: {
+      x: CANVAS_WIDTH * 0.8,
+      y: CANVAS_HEIGHT * 0.1 + Math.sin(normalizedTime * TWO_PI * 0.05) * CANVAS_HEIGHT * 0.05
+    },
+    lightIntensity: 0.8 + Math.sin(normalizedTime * TWO_PI * 0.1) * 0.2,
+    environmentalEffects: {
+      windStrength: Math.sin(normalizedTime * TWO_PI * 0.2) * 5,
+      pollen: Array.from({ length: 30 }, (_, i) => ({
+        x: (i * 20 + frameTime * 50) % CANVAS_WIDTH,
+        y: CANVAS_HEIGHT * Math.random(),
+        size: 0.5 + Math.random() * 1.5,
+        opacity: 0.3 + Math.random() * 0.7
+      })),
+      dewDrops: Array.from({ length: 50 }, () => ({
+        x: Math.random() * CANVAS_WIDTH,
+        y: CANVAS_HEIGHT * (0.6 + Math.random() * 0.4),
+        size: 1 + Math.random() * 2,
+        sparkle: Math.random()
+      }))
+    },
+    catPosition: {
+      x: CANVAS_WIDTH * (0.3 + Math.sin(normalizedTime * TWO_PI * 0.5) * 0.2),
+      y: CANVAS_HEIGHT * (0.7 + Math.sin(normalizedTime * TWO_PI * 0.7) * 0.05)
+    },
+    catMovement: {
+      bodyRotation: Math.sin(normalizedTime * TWO_PI * 0.3) * 5,
+      tailSwing: Math.sin(normalizedTime * TWO_PI * 2) * 30,
+      earTwitch: Math.sin(normalizedTime * TWO_PI * 8) * 5,
+      headBob: Math.sin(normalizedTime * TWO_PI * 2) * 3,
+      breathingCycle: Math.sin(normalizedTime * TWO_PI * 1.5) * 2,
+      walkCycle: Math.sin(normalizedTime * TWO_PI * 4),
+      furRipple: Math.sin(normalizedTime * TWO_PI * 10) * 2
+    },
+    catExpression: {
+      eyeBlink: Math.random() > 0.95 ? 1 : 0,
+      whiskerMovement: Math.sin(normalizedTime * TWO_PI * 6) * 2,
+      mouthShape: 0.5 + Math.sin(normalizedTime * TWO_PI * 0.7) * 0.3,
+      pupilDilation: 0.5 + Math.sin(normalizedTime * TWO_PI * 0.2) * 0.3
+    },
+    butterflyPosition: {
+      x: CANVAS_WIDTH * (0.5 + Math.sin(normalizedTime * TWO_PI * 0.7) * 0.3),
+      y: CANVAS_HEIGHT * (0.3 + Math.cos(normalizedTime * TWO_PI * 0.5) * 0.2)
+    },
+    butterflyWingAngle: Math.sin(normalizedTime * TWO_PI * 10) * Math.PI / 4,
+    flowers: [
+      { type: 'daisy', x: CANVAS_WIDTH * 0.2, y: CANVAS_HEIGHT * 0.8, sway: Math.sin(normalizedTime * TWO_PI * 0.5) * 5, petalRotation: normalizedTime * TWO_PI * 0.1 },
+      { type: 'lavender', x: CANVAS_WIDTH * 0.7, y: CANVAS_HEIGHT * 0.85, sway: Math.sin(normalizedTime * TWO_PI * 0.6) * 7, bloomLevel: 0.5 + Math.sin(normalizedTime * TWO_PI * 0.2) * 0.5 },
+      { type: 'sunflower', x: CANVAS_WIDTH * 0.9, y: CANVAS_HEIGHT * 0.6, sway: Math.sin(normalizedTime * TWO_PI * 0.4) * 10, faceRotation: Math.sin(normalizedTime * TWO_PI * 0.1) * 15 },
+      { type: 'rose', x: CANVAS_WIDTH * 0.4, y: CANVAS_HEIGHT * 0.75, sway: Math.sin(normalizedTime * TWO_PI * 0.55) * 6, petalOpenness: 0.7 + Math.sin(normalizedTime * TWO_PI * 0.3) * 0.3 },
+      { type: 'hydrangea', x: CANVAS_WIDTH * 0.1, y: CANVAS_HEIGHT * 0.7, sway: Math.sin(normalizedTime * TWO_PI * 0.45) * 8, colorShift: Math.sin(normalizedTime * TWO_PI * 0.1) * 30 }
+    ],
+    insects: [
+      { type: 'bee', x: CANVAS_WIDTH * (0.3 + Math.sin(normalizedTime * TWO_PI * 1.2) * 0.1), y: CANVAS_HEIGHT * (0.4 + Math.cos(normalizedTime * TWO_PI * 1.5) * 0.1), wingBeat: Math.sin(normalizedTime * TWO_PI * 30) },
+      { type: 'ladybug', x: CANVAS_WIDTH * 0.6, y: CANVAS_HEIGHT * (0.9 + Math.sin(normalizedTime * TWO_PI * 0.8) * 0.05), wingOpen: Math.sin(normalizedTime * TWO_PI * 0.2) > 0.8 },
+      { type: 'dragonfly', x: CANVAS_WIDTH * (0.8 + Math.cos(normalizedTime * TWO_PI * 0.9) * 0.1), y: CANVAS_HEIGHT * 0.2, wingRotation: Math.sin(normalizedTime * TWO_PI * 20) * 30 }
+    ],
+    trees: [
+      { type: 'oak', x: CANVAS_WIDTH * 0.1, y: CANVAS_HEIGHT * 0.4, sway: Math.sin(normalizedTime * TWO_PI * 0.1) * 2, leafRustle: Math.sin(normalizedTime * TWO_PI * 5) },
+      { type: 'maple', x: CANVAS_WIDTH * 0.9, y: CANVAS_HEIGHT * 0.5, sway: Math.sin(normalizedTime * TWO_PI * 0.12) * 3, leafColor: 0.5 + Math.sin(normalizedTime * TWO_PI * 0.05) * 0.5 },
+      { type: 'willow', x: CANVAS_WIDTH * 0.5, y: CANVAS_HEIGHT * 0.3, sway: Math.sin(normalizedTime * TWO_PI * 0.08) * 5, branchDroop: Math.sin(normalizedTime * TWO_PI * 0.2) * 10 }
+    ],
+    wildlife: [
+      { type: 'bird', x: CANVAS_WIDTH * (0.1 + Math.sin(normalizedTime * TWO_PI * 0.3) * 0.8), y: CANVAS_HEIGHT * (0.2 + Math.cos(normalizedTime * TWO_PI * 0.4) * 0.1), wingSpan: 10 + Math.sin(normalizedTime * TWO_PI * 5) * 5 },
+      { type: 'squirrel', x: CANVAS_WIDTH * (0.8 + Math.sin(normalizedTime * TWO_PI * 0.6) * 0.1), y: CANVAS_HEIGHT * 0.6, tailFlick: Math.sin(normalizedTime * TWO_PI * 3) * 20 },
+      { type: 'rabbit', x: CANVAS_WIDTH * (0.4 + Math.sin(normalizedTime * TWO_PI * 0.2) * 0.05), y: CANVAS_HEIGHT * 0.85, earTwitch: Math.sin(normalizedTime * TWO_PI * 8) * 10, hopCycle: Math.sin(normalizedTime * TWO_PI * 1.5) * 5 }
+    ],
+    weatherEffects: {
+      raindrops: normalizedTime > 0.7 && normalizedTime < 0.8 ? Array.from({ length: 100 }, (_, i) => ({
+        x: Math.random() * CANVAS_WIDTH,
+        y: (normalizedTime * 1000 + i * 10) % CANVAS_HEIGHT,
+        length: 10 + Math.random() * 10,
+        speed: 5 + Math.random() * 5
+      })) : [],
+      rainbowIntensity: normalizedTime > 0.8 && normalizedTime < 0.9 ? (normalizedTime - 0.8) * 10 : 0,
+      fogDensity: Math.max(0, Math.sin(normalizedTime * TWO_PI * 0.1) - 0.5) * 0.5
+    },
+    timeOfDay: {
+      sunAngle: normalizedTime * TWO_PI,
+      skyHue: 200 + Math.sin(normalizedTime * TWO_PI) * 20,
+      skyBrightness: 0.5 + Math.sin(normalizedTime * TWO_PI - HALF_PI) * 0.4
+    }
+  };
+}
+
+function drawSky(frameData) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+  const topColor = `hsl(${frameData.timeOfDay.skyHue}, 70%, ${frameData.timeOfDay.skyBrightness * 100}%)`;
+  const bottomColor = `hsl(${frameData.timeOfDay.skyHue}, 60%, ${(frameData.timeOfDay.skyBrightness * 0.8 + 0.2) * 100}%)`;
+  gradient.addColorStop(0, topColor);
+  gradient.addColorStop(1, bottomColor);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // Draw stars if it's night time
+  if (frameData.timeOfDay.skyBrightness < 0.3) {
+    ctx.fillStyle = 'white';
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * CANVAS_WIDTH;
+      const y = Math.random() * CANVAS_HEIGHT * 0.7;
+      const radius = Math.random() * 1.5;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, TWO_PI);
+      ctx.fill();
+    }
+  }
+}
+
+function drawSun(frameData) {
+  const { x, y } = frameData.sunPosition;
+  const sunRadius = 30;
+  const gradient = ctx.createRadialGradient(x, y, 0, x, y, sunRadius);
+  const sunColor = `hsl(${40 + frameData.timeOfDay.skyHue * 0.2}, 100%, ${50 + frameData.timeOfDay.skyBrightness * 50}%)`;
+  gradient.addColorStop(0, sunColor);
+  gradient.addColorStop(0.3, sunColor);
+  gradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(x, y, sunRadius, 0, TWO_PI);
+  ctx.fill();
+
+  // Sun rays
+  ctx.strokeStyle = sunColor;
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 12; i++) {
+    const angle = i * (TWO_PI / 12);
+    const innerRadius = sunRadius * 1.2;
+    const outerRadius = sunRadius * 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x + Math.cos(angle) * innerRadius, y + Math.sin(angle) * innerRadius);
+    ctx.lineTo(x + Math.cos(angle) * outerRadius, y + Math.sin(angle) * outerRadius);
+    ctx.stroke();
+  }
+}
+
+function drawCloud(cloud) {
+  ctx.fillStyle = `rgba(${cloud.color.join(',')})`;
+  const { x, y } = cloud.position;
+  const { width, height } = cloud.size;
+
+  ctx.beginPath();
+  ctx.arc(x, y, height / 2, 0, TWO_PI);
+  ctx.arc(x + width * 0.2, y - height * 0.3, height * 0.4, 0, TWO_PI);
+  ctx.arc(x + width * 0.4, y - height * 0.1, height * 0.6, 0, TWO_PI);
+  ctx.arc(x + width * 0.6, y, height * 0.5, 0, TWO_PI);
+  ctx.arc(x + width * 0.8, y - height * 0.2, height * 0.45, 0, TWO_PI);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawGrass(frameData) {
+  const grassGradient = ctx.createLinearGradient(0, CANVAS_HEIGHT * 0.6, 0, CANVAS_HEIGHT);
+  grassGradient.addColorStop(0, '#7cfc00');
+  grassGradient.addColorStop(1, '#228b22');
+  ctx.fillStyle = grassGradient;
+  ctx.fillRect(0, CANVAS_HEIGHT * 0.6, CANVAS_WIDTH, CANVAS_HEIGHT * 0.4);
+
+  // Detalhes da grama
+  ctx.strokeStyle = '#228b22';
+  for (let i = 0; i < CANVAS_WIDTH; i += 3) {
+    const grassHeight = 5 + Math.random() * 15;
+    const windEffect = Math.sin(i * 0.1 + frameData.environmentalEffects.windStrength) * 5;
+    const x = i;
+    const y = CANVAS_HEIGHT;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(
+      x + windEffect,
+      y - grassHeight * 0.7,
+      x + windEffect * 1.2,
+      y - grassHeight
+    );
+    ctx.strokeStyle = `hsl(${90 + Math.random() * 30}, 70%, ${40 + Math.random() * 20}%)`;
+    ctx.lineWidth = 1 + Math.random();
+    ctx.stroke();
+  }
+}
+
+function drawHedge() {
+  const hedgeGradient = ctx.createLinearGradient(0, CANVAS_HEIGHT * 0.55, 0, CANVAS_HEIGHT * 0.65);
+  hedgeGradient.addColorStop(0, '#006400');
+  hedgeGradient.addColorStop(1, '#004d00');
+  ctx.fillStyle = hedgeGradient;
+  ctx.fillRect(0, CANVAS_HEIGHT * 0.55, CANVAS_WIDTH, CANVAS_HEIGHT * 0.1);
+
+  // Add hedge texture
+  ctx.fillStyle = 'rgba(0, 50, 0, 0.1)';
+  for (let i = 0; i < 1000; i++) {
+    const x = Math.random() * CANVAS_WIDTH;
+    const y = CANVAS_HEIGHT * 0.55 + Math.random() * CANVAS_HEIGHT * 0.1;
+    const radius = 1 + Math.random() * 3;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, TWO_PI);
+    ctx.fill();
+  }
+}
+
+function drawTree(tree, frameData) {
+  ctx.save();
+  ctx.translate(tree.x, tree.y);
+  ctx.rotate(tree.sway * Math.PI / 180);
+
+  // Tronco
+  const trunkGradient = ctx.createLinearGradient(-15, 0, 15, 0);
+  trunkGradient.addColorStop(0, '#8B4513');
+  trunkGradient.addColorStop(0.5, '#A0522D');
+  trunkGradient.addColorStop(1, '#8B4513');
+  ctx.fillStyle = trunkGradient;
+  ctx.fillRect(-15, 0, 30, 120);
+
+  // Textura do tronco
+  ctx.strokeStyle = '#6B2D00';
+  for (let i = 0; i < 10; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-15 + Math.random() * 30, 0);
+    ctx.quadraticCurveTo(
+      -15 + Math.random() * 30,
+      60 + Math.random() * 60,
+      -15 + Math.random() * 30,
+      120
+    );
+    ctx.stroke();
+  }
+
+  // Copa
+  ctx.fillStyle = `hsl(${90 + tree.leafColor * 60}, 80%, 30%)`;
+  for (let i = 0; i < 6; i++) {
+    ctx.save();
+    ctx.rotate(i * TWO_PI / 6 + tree.leafRustle * 0.1);
+    ctx.beginPath();
+    ctx.moveTo(0, -20);
+    ctx.quadraticCurveTo(60, -120, 0, -140);
+    ctx.quadraticCurveTo(-60, -120, 0, -20);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Folhas caindo
+  ctx.fillStyle = `hsla(${90 + tree.leafColor * 60}, 80%, 30%, 0.5)`;
+  for (let i = 0; i < 10; i++) {
+    const leafX = Math.random() * 160 - 80;
+    const leafY = Math.random() * 180 - 160;
+    const leafSize = 2 + Math.random() * 3;
+    const leafRotation = Math.random() * TWO_PI;
+    
+    ctx.save();
+    ctx.translate(leafX, leafY);
+    ctx.rotate(leafRotation);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, leafSize, leafSize * 2, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawFlower(flower, frameData) {
+  ctx.save();
+  ctx.translate(flower.x, flower.y);
+  ctx.rotate(flower.sway * Math.PI / 180 + frameData.environmentalEffects.windStrength * 0.02);
+
+  switch (flower.type) {
+    case 'daisy':
+      drawDaisy(flower);
+      break;
+    case 'lavender':
+      drawLavender(flower);
+      break;
+    case 'sunflower':
+      drawSunflower(flower);
+      break;
+    case 'rose':
+      drawRose(flower);
+      break;
+    case 'hydrangea':
+      drawHydrangea(flower);
+      break;
+  }
+
+  ctx.restore();
+}
+
+function drawDaisy(flower) {
+  // Haste
+  ctx.strokeStyle = '#228B22';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 30);
+  ctx.stroke();
+
+  // Centro da margarida
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(0, 0, 5, 0, TWO_PI);
+  ctx.fill();
+
+  // Pétalas
+  ctx.fillStyle = '#FFFFFF';
+  for (let i = 0; i < 12; i++) {
+    ctx.save();
+    ctx.rotate(i * TWO_PI / 12 + flower.petalRotation);
+    ctx.beginPath();
+    ctx.ellipse(10, 0, 8, 3, 0, 0, TWO_PI);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawLavender(flower) {
+  // Haste
+  ctx.strokeStyle = '#228B22';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, -30);
+  ctx.stroke();
+
+  // Flores
+  ctx.fillStyle = '#8A2BE2';
+  for (let i = 0; i < 10; i++) {
+    const bloomOffset = Math.sin(i * 0.5) * 3 * flower.bloomLevel;
+    ctx.beginPath();
+    ctx.arc(bloomOffset, -30 + i * 3, 2 * flower.bloomLevel, 0, TWO_PI);
+    ctx.fill();
+  }
+}
+
+function drawSunflower(flower) {
+  // Haste
+  ctx.strokeStyle = '#228B22';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 50);
+  ctx.stroke();
+
+  ctx.save();
+  ctx.rotate(flower.faceRotation * Math.PI / 180);
+
+  // Centro do girassol
+  const centerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 15);
+  centerGradient.addColorStop(0, '#8B4513');
+  centerGradient.addColorStop(1, '#4B3621');
+  ctx.fillStyle = centerGradient;
+  ctx.beginPath();
+  ctx.arc(0, 0, 15, 0, TWO_PI);
+  ctx.fill();
+
+  // Sementes
+  ctx.fillStyle = '#000000';
+  for (let i = 0; i < 100; i++) {
+    const angle = i * 0.2;
+    const radius = Math.sqrt(i) * 0.7;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 0.8, 0.5, angle, 0, TWO_PI);
+    ctx.fill();
+  }
+
+  // Pétalas
+  ctx.fillStyle = '#FFD700';
+  for (let i = 0; i < 24; i++) {
+    ctx.save();
+    ctx.rotate(i * TWO_PI / 24);
+    ctx.beginPath();
+    ctx.moveTo(15, 0);
+    ctx.quadraticCurveTo(35, -5, 40, 0);
+    ctx.quadraticCurveTo(35, 5, 15, 0);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+function drawRose(flower) {
+  // Haste
+  ctx.strokeStyle = '#228B22';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 40);
+  ctx.stroke();
+
+  // Folhas
+  ctx.fillStyle = '#228B22';
+  ctx.beginPath();
+  ctx.ellipse(-10, 20, 10, 5, Math.PI / 4, 0, TWO_PI);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(10, 30, 10, 5, -Math.PI / 4, 0, TWO_PI);
+  ctx.fill();
+
+  // Pétalas
+  const petalCount = 7;
+  const baseHue = 340; // Red
+  for (let layer = 0; layer < petalCount; layer++) {
+    const layerAngle = (layer / petalCount) * TWO_PI;
+    const layerSize = 5 + layer * 3;
+    const layerOpacity = 0.7 + (layer / petalCount) * 0.3;
+    const layerHue = baseHue + layer * 5;
+
+    ctx.fillStyle = `hsla(${layerHue}, 100%, 50%, ${layerOpacity})`;
+
+    for (let petal = 0; petal < 5; petal++) {
+      const petalAngle = layerAngle + (petal / 5) * TWO_PI;
+      const petalOpenness = flower.petalOpenness * (1 - layer / petalCount);
+
+      ctx.save();
+      ctx.rotate(petalAngle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(
+        layerSize * 0.7, -layerSize * petalOpenness,
+        layerSize, -layerSize * 0.5
+      );
+      ctx.quadraticCurveTo(
+        layerSize * 1.3, 0,
+        layerSize, layerSize * 0.5
+      );
+      ctx.quadraticCurveTo(
+        layerSize * 0.7, layerSize * petalOpenness,
+        0, 0
+      );
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
+function drawHydrangea(flower) {
+  // Haste principal
+  ctx.strokeStyle = '#228B22';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 30);
+  ctx.stroke();
+
+  // Hastes secundárias
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * TWO_PI;
+    ctx.save();
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(10, -10, 20, -15);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Flores
+  const flowerCount = 50;
+  const baseHue = (180 + flower.colorShift) % 360;
+  for (let i = 0; i < flowerCount; i++) {
+    const angle = Math.random() * TWO_PI;
+    const radius = Math.random() * 20;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius - 15;
+    const size = 2 + Math.random() * 2;
+    const hue = (baseHue + Math.random() * 60 - 30 + 360) % 360;
+
+    ctx.fillStyle = `hsl(${hue}, 80%, 70%)`;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, TWO_PI);
+    ctx.fill();
+
+    // Adicionar detalhes às flores
+    ctx.fillStyle = `hsl(${hue}, 90%, 60%)`;
+    for (let j = 0; j < 4; j++) {
+      const petalAngle = (j / 4) * TWO_PI;
+      const petalX = x + Math.cos(petalAngle) * size * 0.7;
+      const petalY = y + Math.sin(petalAngle) * size * 0.7;
+      ctx.beginPath();
+      ctx.arc(petalX, petalY, size * 0.5, 0, TWO_PI);
+      ctx.fill();
+    }
+  }
+}
+
+function drawCat(frameData) {
+  const { x, y } = frameData.catPosition;
+  const { bodyRotation, tailSwing, earTwitch, headBob, breathingCycle, walkCycle, furRipple } = frameData.catMovement;
+  const { eyeBlink, whiskerMovement, mouthShape, pupilDilation } = frameData.catExpression;
+  
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(bodyRotation * Math.PI / 180);
+
+  // Corpo
+  const bodyGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 50);
+  bodyGradient.addColorStop(0, '#F0E68C'); // Khaki
+  bodyGradient.addColorStop(1, '#DEB887'); // Burlywood
+  ctx.fillStyle = bodyGradient;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 50, 30 + breathingCycle, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Padrões do pelo siamês
+  ctx.fillStyle = '#8B4513'; // Saddle Brown
+  ctx.beginPath();
+  ctx.ellipse(-20, -10, 15, 10, Math.PI / 4, 0, TWO_PI);
+  ctx.ellipse(20, -10, 15, 10, -Math.PI / 4, 0, TWO_PI);
+  ctx.fill();
+
+  // Efeito de ondulação do pelo
+  ctx.strokeStyle = 'rgba(139, 69, 19, 0.3)'; // Marrom semi-transparente
+  for (let i = 0; i < 20; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-50, -30 + i * 3);
+    ctx.quadraticCurveTo(
+      0, -30 + i * 3 + Math.sin(i + furRipple) * 5,
+      50, -30 + i * 3
+    );
+    ctx.stroke();
+  }
+
+  // Patas
+  const legPositions = [
+    {x: -30, y: 25},
+    {x: -10, y: 25},
+    {x: 20, y: 25},
+    {x: 40, y: 25}
+  ];
+
+  legPositions.forEach((pos, index) => {
+    ctx.fillStyle = '#DEB887';
+    ctx.beginPath();
+    ctx.roundRect(
+      pos.x,
+      pos.y + Math.sin(walkCycle + index * HALF_PI) * 5,
+      10,
+      20,
+      5
+    );
+    ctx.fill();
+
+    // Almofadas das patas
+    ctx.fillStyle = '#FFA07A';
+    ctx.beginPath();
+    ctx.ellipse(
+      pos.x + 5,
+      pos.y + 22 + Math.sin(walkCycle + index * HALF_PI) * 5,
+      4,
+      3,
+      0,
+      0,
+      TWO_PI
+    );
+    ctx.fill();
+  });
+
+  // Cauda
+  ctx.save();
+  ctx.translate(50, 0);
+  ctx.rotate(tailSwing * Math.PI / 180);
+  const tailGradient = ctx.createLinearGradient(0, 0, 40, 0);
+  tailGradient.addColorStop(0, '#DEB887');
+  tailGradient.addColorStop(1, '#8B4513');
+  ctx.fillStyle = tailGradient;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(20, -20, 40, 0);
+  ctx.quadraticCurveTo(20, 20, 0, 0);
+  ctx.fill();
+  ctx.restore();
+
+  // Cabeça
+  ctx.save();
+  ctx.translate(-40, -20 + headBob);
+  const headGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 25);
+  headGradient.addColorStop(0, '#F0E68C');
+  headGradient.addColorStop(1, '#DEB887');
+  ctx.fillStyle = headGradient;
+  ctx.beginPath();
+  ctx.arc(0, 0, 25, 0, TWO_PI);
+  ctx.fill();
+
+  // Máscara facial siamesa
+  ctx.fillStyle = '#8B4513';
+  ctx.beginPath();
+  ctx.moveTo(-15, -15);
+  ctx.quadraticCurveTo(0, -25, 15, -15);
+  ctx.quadraticCurveTo(10, 5, 0, 15);
+  ctx.quadraticCurveTo(-10, 5, -15, -15);
+  ctx.fill();
+
+  // Orelhas
+  const earRotation = earTwitch;
+  ctx.fillStyle = '#DEB887';
+  ctx.save();
+  ctx.translate(-15, -20);
+  ctx.rotate((earRotation + earTwitch) * Math.PI / 180);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-10, -20);
+  ctx.quadraticCurveTo(-5, -22, 0, -20);
+  ctx.quadraticCurveTo(5, -22, 10, -20);
+  ctx.closePath();
+  ctx.fill();
+  // Interior da orelha
+  ctx.fillStyle = '#FFA07A';
+  ctx.beginPath();
+  ctx.moveTo(0, -3);
+  ctx.lineTo(-7, -17);
+  ctx.quadraticCurveTo(-3, -19, 0, -17);
+  ctx.quadraticCurveTo(3, -19, 7, -17);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(15, -20);
+  ctx.rotate((-earRotation + earTwitch) * Math.PI / 180);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-10, -20);
+  ctx.quadraticCurveTo(-5, -22, 0, -20);
+  ctx.quadraticCurveTo(5, -22, 10, -20);
+  ctx.closePath();
+  ctx.fill();
+  // Interior da orelha
+  ctx.fillStyle = '#FFA07A';
+  ctx.beginPath();
+  ctx.moveTo(0, -3);
+  ctx.lineTo(-7, -17);
+  ctx.quadraticCurveTo(-3, -19, 0, -17);
+  ctx.quadraticCurveTo(3, -19, 7, -17);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Olhos
+  const eyeY = eyeBlink * 3;
+  ctx.fillStyle = '#87CEEB'; // Sky Blue
+  ctx.beginPath();
+  ctx.ellipse(-10, eyeY, 7, 7 - eyeBlink * 6, 0, 0, TWO_PI);
+  ctx.ellipse(10, eyeY, 7, 7 - eyeBlink * 6, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Pupilas
+  ctx.fillStyle = '#000000';
+  const pupilSize = 3 + pupilDilation * 2;
+  ctx.beginPath();
+  ctx.ellipse(-10, eyeY, pupilSize, pupilSize, 0, 0, TWO_PI);
+  ctx.ellipse(10, eyeY, pupilSize, pupilSize, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Reflexo nos olhos
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(-12, eyeY - 2, 2, 0, TWO_PI);
+  ctx.arc(8, eyeY - 2, 2, 0, TWO_PI);
+  ctx.fill();
+
+  // Nariz
+  ctx.fillStyle = '#FFA07A';
+  ctx.beginPath();
+  ctx.moveTo(0, 5);
+  ctx.lineTo(-3, 10);
+  ctx.quadraticCurveTo(0, 11, 3, 10);
+  ctx.closePath();
+  ctx.fill();
+
+  // Boca
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-5, 15);
+  ctx.quadraticCurveTo(0, 15 + mouthShape * 5, 5, 15);
+  ctx.stroke();
+
+  // Bigodes
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 1;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(5, 10 + i * 2);
+    ctx.quadraticCurveTo(20 + whiskerMovement, 10 + i * 5, 35 + whiskerMovement, 10 + i * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-5, 10 + i * 2);
+    ctx.quadraticCurveTo(-20 - whiskerMovement, 10 + i * 5, -35 - whiskerMovement, 10 + i * 2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawButterfly(frameData) {
+  const { x, y } = frameData.butterflyPosition;
+  const wingAngle = frameData.butterflyWingAngle;
+
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Corpo
+  const bodyGradient = ctx.createLinearGradient(0, -10, 0, 10);
+  bodyGradient.addColorStop(0, '#000000');
+  bodyGradient.addColorStop(0.5, '#454545');
+  bodyGradient.addColorStop(1, '#000000');
+  ctx.fillStyle = bodyGradient;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 2, 10, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Asas
+  const wingGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+  wingGradient.addColorStop(0, '#FF69B4'); // Hot Pink
+  wingGradient.addColorStop(0.7, '#FF1493'); // Deep Pink
+  wingGradient.addColorStop(1, '#C71585'); // Medium Violet Red
+
+  ctx.fillStyle = wingGradient;
+
+  // Asa esquerda
+  ctx.save();
+  ctx.rotate(wingAngle);
+  drawButterflyWing(20, 15);
+  ctx.restore();
+
+  // Asa direita
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.rotate(wingAngle);
+  drawButterflyWing(20, 15);
+  ctx.restore();
+
+  // Antenas
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, -10);
+  ctx.quadraticCurveTo(-5, -15, -5, -20);
+  ctx.moveTo(0, -10);
+  ctx.quadraticCurveTo(5, -15, 5, -20);
+  ctx.stroke();
+
+  // Pontinhas nas antenas
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-5, -20, 1, 0, TWO_PI);
+  ctx.arc(5, -20, 1, 0, TWO_PI);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawButterflyWing(width, height) {
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(width * 0.7, -height * 0.7, width, 0);
+  ctx.quadraticCurveTo(width * 0.7, height * 0.7, 0, 0);
+  ctx.fill();
+
+  // Padrões na asa
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(width * 0.2, 0);
+  ctx.bezierCurveTo(
+    width * 0.4, -height * 0.4,
+    width * 0.6, -height * 0.4,
+    width * 0.8, 0
+  );
+  ctx.moveTo(width * 0.2, 0);
+  ctx.bezierCurveTo(
+    width * 0.4, height * 0.4,
+    width * 0.6, height * 0.4,
+    width * 0.8, 0
+  );
+  ctx.stroke();
+
+  // Pontos decorativos
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  for (let i = 0; i < 5; i++) {
+    const x = width * (0.3 + i * 0.15);
+    const y = height * (Math.random() - 0.5) * 0.6;
+    ctx.beginPath();
+    ctx.arc(x, y, 1, 0, TWO_PI);
+    ctx.fill();
+  }
+}
+
+function drawInsects(frameData) {
+  frameData.insects.forEach(insect => {
+    switch (insect.type) {
+      case 'bee':
+        drawBee(insect.x, insect.y, insect.wingBeat);
+        break;
+      case 'ladybug':
+        drawLadybug(insect.x, insect.y, insect.wingOpen);
+        break;
+      case 'dragonfly':
+        drawDragonfly(insect.x, insect.y, insect.wingRotation);
+        break;
+    }
+  });
+}
+
+function drawBee(x, y, wingBeat) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Corpo
+  const bodyGradient = ctx.createLinearGradient(-5, 0, 5, 0);
+  bodyGradient.addColorStop(0, '#FFD700');
+  bodyGradient.addColorStop(0.5, '#FFA500');
+  bodyGradient.addColorStop(1, '#FFD700');
+  ctx.fillStyle = bodyGradient;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 5, 8, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Listras
+  ctx.fillStyle = '#000000';
+  for (let i = -2; i <= 2; i += 2) {
+    ctx.beginPath();
+    ctx.ellipse(0, i, 5, 1, 0, 0, TWO_PI);
+    ctx.fill();
+  }
+
+  // Asas
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.save();
+  ctx.rotate(Math.sin(wingBeat) * Math.PI / 6);
+  ctx.beginPath();
+  ctx.ellipse(-3, -5, 5, 3, Math.PI / 4, 0, TWO_PI);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.rotate(-Math.sin(wingBeat) * Math.PI / 6);
+  ctx.beginPath();
+  ctx.ellipse(3, -5, 5, 3, -Math.PI / 4, 0, TWO_PI);
+  ctx.fill();
+  ctx.restore();
+
+  // Olhos
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-2, -4, 1, 0, TWO_PI);
+  ctx.arc(2, -4, 1, 0, TWO_PI);
+  ctx.fill();
+
+  // Antenas
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(-2, -6);
+  ctx.quadraticCurveTo(-4, -9, -3, -11);
+  ctx.moveTo(2, -6);
+  ctx.quadraticCurveTo(4, -9, 3, -11);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawLadybug(x, y, wingOpen) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Corpo
+  ctx.fillStyle = '#FF0000';
+  ctx.beginPath();
+  ctx.arc(0, 0, 5, 0, TWO_PI);
+  ctx.fill();
+
+  // Cabeça
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-3, 0, 3, 0, TWO_PI);
+  ctx.fill();
+
+  // Pontos
+  ctx.fillStyle = '#000000';
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 2; j++) {
+      ctx.beginPath();
+      ctx.arc(i * 2 - 2, j * 2 - 1, 0.8, 0, TWO_PI);
+      ctx.fill();
+    }
+  }
+
+  // Asas
+  if (wingOpen) {
+    ctx.fillStyle = '#FFA07A';
+    ctx.beginPath();
+    ctx.ellipse(2, -3, 6, 4, -Math.PI / 6, 0, TWO_PI);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(2, 3, 6, 4, Math.PI / 6, 0, TWO_PI);
+    ctx.fill();
+  }
+
+  // Antenas
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(-4, -1);
+  ctx.quadraticCurveTo(-6, -3, -5, -5);
+  ctx.moveTo(-4, 1);
+  ctx.quadraticCurveTo(-6, 3, -5, 5);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawDragonfly(x, y, wingRotation) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Corpo
+  const bodyGradient = ctx.createLinearGradient(-15, 0, 15, 0);
+  bodyGradient.addColorStop(0, '#20B2AA');
+  bodyGradient.addColorStop(0.5, '#48D1CC');
+  bodyGradient.addColorStop(1, '#20B2AA');
+  ctx.fillStyle = bodyGradient;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 2, 15, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Asas
+  ctx.fillStyle = 'rgba(200, 250, 255, 0.7)';
+  for (let i = -1; i <= 1; i += 2) {
+    ctx.save();
+    ctx.rotate(wingRotation * i);
+    ctx.beginPath();
+    ctx.ellipse(-8, -5 * i, 10, 3, Math.PI / 6 * i, 0, TWO_PI);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(8, -5 * i, 10, 3, -Math.PI / 6 * i, 0, TWO_PI);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Olhos
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-2, -2, 1, 0, TWO_PI);
+  ctx.arc(-2, 2, 1, 0, TWO_PI);
+  ctx.fill();
+
+  // Antenas
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(-2, -2);
+  ctx.quadraticCurveTo(-4, -4, -3, -6);
+  ctx.moveTo(-2, 2);
+  ctx.quadraticCurveTo(-4, 4, -3, 6);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawWildlife(frameData) {
+  frameData.wildlife.forEach(animal => {
+    switch (animal.type) {
+      case 'bird':
+        drawBird(animal.x, animal.y, animal.wingSpan);
+        break;
+      case 'squirrel':
+        drawSquirrel(animal.x, animal.y, animal.tailFlick);
+        break;
+      case 'rabbit':
+        drawRabbit(animal.x, animal.y, animal.earTwitch, animal.hopCycle);
+        break;
+    }
+  });
+}
+
+function drawBird(x, y, wingSpan) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Corpo
+  ctx.fillStyle = '#4169E1'; // Royal Blue
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 8, 5, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Asas
+  ctx.fillStyle = '#1E90FF'; // Dodger Blue
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(wingSpan / 2, -wingSpan / 4, wingSpan, 0);
+  ctx.quadraticCurveTo(wingSpan / 2, wingSpan / 8, 0, 0);
+  ctx.fill();
+
+  ctx.save();
+  ctx.scale(-1, 1);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(wingSpan / 2, -wingSpan / 4, wingSpan, 0);
+  ctx.quadraticCurveTo(wingSpan / 2, wingSpan / 8, 0, 0);
+  ctx.fill();
+  ctx.restore();
+
+  // Cabeça
+  ctx.fillStyle = '#4169E1';
+  ctx.beginPath();
+  ctx.arc(-6, -2, 4, 0, TWO_PI);
+  ctx.fill();
+
+  // Olho
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-7, -3, 1, 0, TWO_PI);
+  ctx.fill();
+
+  // Bico
+  ctx.fillStyle = '#FFD700'; // Gold
+  ctx.beginPath();
+  ctx.moveTo(-10, -2);
+  ctx.lineTo(-13, -1);
+  ctx.lineTo(-10, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Cauda
+  ctx.fillStyle = '#1E90FF';
+  ctx.beginPath();
+  ctx.moveTo(8, 0);
+  ctx.lineTo(15, -3);
+  ctx.lineTo(15, 3);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawSquirrel(x, y, tailFlick) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Corpo
+  ctx.fillStyle = '#8B4513'; // Saddle Brown
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 8, 6, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Cabeça
+  ctx.beginPath();
+  ctx.arc(-6, -4, 4, 0, TWO_PI);
+  ctx.fill();
+
+  // Orelhas
+  ctx.beginPath();
+  ctx.arc(-8, -7, 2, 0, TWO_PI);
+  ctx.arc(-4, -7, 2, 0, TWO_PI);
+  ctx.fill();
+
+  // Olho
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-7, -4, 0.8, 0, TWO_PI);
+  ctx.fill();
+
+  // Nariz
+  ctx.fillStyle = '#FFA07A'; // Light Salmon
+  ctx.beginPath();
+  ctx.arc(-9, -3, 0.8, 0, TWO_PI);
+  ctx.fill();
+
+  // Patas dianteiras
+  ctx.fillStyle = '#8B4513';
+  ctx.beginPath();
+  ctx.ellipse(-4, 5, 2, 3, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Patas traseiras
+  ctx.beginPath();
+  ctx.ellipse(4, 5, 3, 4, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Cauda
+  ctx.save();
+  ctx.rotate(tailFlick * Math.PI / 180);
+  ctx.beginPath();
+  ctx.moveTo(6, 0);
+  ctx.quadraticCurveTo(12, -8, 18, -2);
+  ctx.quadraticCurveTo(14, 2, 6, 0);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function drawRabbit(x, y, earTwitch, hopCycle) {
+  ctx.save();
+  ctx.translate(x, y + Math.sin(hopCycle) * 5);
+
+  // Corpo
+  ctx.fillStyle = '#A0522D'; // Sienna
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 10, 7, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Cabeça
+  ctx.beginPath();
+  ctx.arc(-8, -5, 6, 0, TWO_PI);
+  ctx.fill();
+
+  // Orelhas
+  ctx.save();
+  ctx.rotate(earTwitch * Math.PI / 180);
+  ctx.fillStyle = '#A0522D';
+  ctx.beginPath();
+  ctx.ellipse(-10, -13, 2, 6, -0.2, 0, TWO_PI);
+  ctx.fill();
+  ctx.fillStyle = '#FFA07A';
+  ctx.beginPath();
+  ctx.ellipse(-10, -13, 1, 5, -0.2, 0, TWO_PI);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.rotate(-earTwitch * Math.PI / 180);
+  ctx.fillStyle = '#A0522D';
+  ctx.beginPath();
+  ctx.ellipse(-6, -13, 2, 6, 0.2, 0, TWO_PI);
+  ctx.fill();
+  ctx.fillStyle = '#FFA07A';
+  ctx.beginPath();
+  ctx.ellipse(-6, -13, 1, 5, 0.2, 0, TWO_PI);
+  ctx.fill();
+  ctx.restore();
+
+  // Olhos
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(-10, -6, 1, 0, TWO_PI);
+  ctx.fill();
+
+  // Nariz
+  ctx.fillStyle = '#FFA07A';
+  ctx.beginPath();
+  ctx.ellipse(-12, -4, 1.5, 1, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Patas dianteiras
+  ctx.fillStyle = '#A0522D';
+  ctx.beginPath();
+  ctx.ellipse(-5, 6, 3, 2, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Patas traseiras
+  ctx.beginPath();
+  ctx.ellipse(5, 6, 4, 3, 0, 0, TWO_PI);
+  ctx.fill();
+
+  // Cauda
+  ctx.beginPath();
+  ctx.arc(10, 0, 3, 0, TWO_PI);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawWeatherEffects(frameData) {
+  drawRaindrops(frameData.weatherEffects.raindrops);
+  drawRainbow(frameData.weatherEffects.rainbowIntensity);
+  drawFog(frameData.weatherEffects.fogDensity);
+}
+
+function drawRaindrops(raindrops) {
+  ctx.strokeStyle = 'rgba(200, 200, 255, 0.8)';
+  ctx.lineWidth = 1;
+
+  raindrops.forEach(drop => {
+    ctx.beginPath();
+    ctx.moveTo(drop.x, drop.y);
+    ctx.lineTo(drop.x - drop.length * 0.5, drop.y + drop.length);
+    ctx.stroke();
+  });
+}
+
+function drawRainbow(intensity) {
+  if (intensity <= 0) return;
+
+  const rainbowColors = [
+    'rgba(255, 0, 0, 0.5)',
+    'rgba(255, 127, 0, 0.5)',
+    'rgba(255, 255, 0, 0.5)',
+    'rgba(0, 255, 0, 0.5)',
+    'rgba(0, 0, 255, 0.5)',
+    'rgba(75, 0, 130, 0.5)',
+    'rgba(143, 0, 255, 0.5)'
+  ];
+
+  const rainbowWidth = 20 * intensity;
+  const rainbowRadius = CANVAS_HEIGHT * 0.8;
+  const centerX = CANVAS_WIDTH * 0.5;
+  const centerY = CANVAS_HEIGHT * 1.2;
+
+  rainbowColors.forEach((color, index) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = rainbowWidth;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, rainbowRadius - index * rainbowWidth, Math.PI, 0);
+    ctx.stroke();
+  });
+}
+
+function drawFog(density) {
+  if (density <= 0) return;
+
+  ctx.fillStyle = `rgba(200, 200, 200, ${density * 0.5})`;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  for (let i = 0; i < 100; i++) {
+    const x = Math.random() * CANVAS_WIDTH;
+    const y = Math.random() * CANVAS_HEIGHT;
+    const radius = 20 + Math.random() * 60;
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${density * 0.2})`);
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, TWO_PI);
+    ctx.fill();
+  }
+}
+
+function drawFrame(frameData) {
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  drawSky(frameData);
+  drawSun(frameData);
+  frameData.clouds.forEach(cloud => drawCloud(cloud));
+  drawGrass(frameData);
+  drawHedge();
+  frameData.trees.forEach(tree => drawTree(tree, frameData));
+  frameData.flowers.forEach(flower => drawFlower(flower, frameData));
+  drawInsects(frameData);
+  drawWildlife(frameData);
+  drawCat(frameData);
+  drawButterfly(frameData);
+  drawWeatherEffects(frameData);
+
+  // Adicionar efeito de pólens e gotas de orvalho
+  drawPollen(frameData.environmentalEffects.pollen);
+  drawDewDrops(frameData.environmentalEffects.dewDrops);
+}
+
+function drawPollen(pollen) {
+  ctx.fillStyle = 'rgba(255, 255, 200, 0.7)';
+  pollen.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, TWO_PI);
+    ctx.fill();
+  });
+}
+
+function drawDewDrops(dewDrops) {
+  dewDrops.forEach(drop => {
+    const gradient = ctx.createRadialGradient(drop.x, drop.y, 0, drop.x, drop.y, drop.size);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.6)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(drop.x, drop.y, drop.size, 0, TWO_PI);
+    ctx.fill();
+
+    // Adicionar brilho
+    if (drop.sparkle > 0.7) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.beginPath();
+      ctx.arc(drop.x, drop.y, drop.size * 0.3, 0, TWO_PI);
+      ctx.fill();
+    }
+  });
+}
+
+function updateAnimation() {
+  const frameData = getFrameDescription(currentFrame);
+  drawFrame(frameData);
+  
+  currentFrame++;
+  if (currentFrame >= totalFrames) {
+    currentFrame = 0;
+  }
+
+  timeDisplay.textContent = `Tempo: ${(currentFrame / fpsTarget).toFixed(2)}s / ${duration.toFixed(2)}s`;
+
+  if (isPlaying) {
+    animationId = requestAnimationFrame(updateAnimation);
+  }
+}
+
+function startAnimation() {
+  if (!isPlaying) {
+    isPlaying = true;
+    startTime = performance.now() - (currentFrame / fpsTarget) * 1000;
+    updateAnimation();
+  }
+}
+
+function pauseAnimation() {
+  isPlaying = false;
+  cancelAnimationFrame(animationId);
+}
+
+function stopAnimation() {
+  isPlaying = false;
+  cancelAnimationFrame(animationId);
+  currentFrame = 0;
+  const frameData = getFrameDescription(currentFrame);
+  drawFrame(frameData);
+  timeDisplay.textContent = `Tempo: 0.00s / ${duration.toFixed(2)}s`;
+}
+
+function exportAnimation() {
+  const chunks = [];
+  const stream = canvas.captureStream(fpsTarget);
+  const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+  recorder.ondataavailable = e => chunks.push(e.data);
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'gato-siames-no-jardim.webm';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  recorder.start();
+  currentFrame = 0;
+  isPlaying = true;
+
+  function recordFrame() {
+    if (currentFrame < totalFrames) {
+      const frameData = getFrameDescription(currentFrame);
+      drawFrame(frameData);
+      currentFrame++;
+      requestAnimationFrame(recordFrame);
+    } else {
+      isPlaying = false;
+      recorder.stop();
+    }
+  }
+
+  recordFrame();
+}
+
+playBtn.addEventListener('click', startAnimation);
+pauseBtn.addEventListener('click', pauseAnimation);
+stopBtn.addEventListener('click', stopAnimation);
+exportBtn.addEventListener('click', exportAnimation);
+
+// Inicializar a animação
+const initialFrameData = getFrameDescription(0);
+drawFrame(initialFrameData);
+
+// Atualizar informações de FPS e tamanho do arquivo
+const fpsInfo = document.getElementById('fpsInfo');
+const fileSizeInfo = document.getElementById('fileSizeInfo');
+
+fpsInfo.textContent = `FPS: ${fpsTarget}`;
+fileSizeInfo.textContent = `Tamanho estimado do arquivo: ${((fpsTarget * duration * CANVAS_WIDTH * CANVAS_HEIGHT * 4) / (1024 * 1024)).toFixed(2)} MB`;
+
+// Remover mensagem de carregamento
+loadingMessage.style.display = 'none';
+
+// Exibir descrição do primeiro frame
+frameDescription.textContent = `Frame 0/${totalFrames}: Gato siamês explorando um jardim exuberante em um dia ensolarado.`;
+</script>
+</body>
+</html>
